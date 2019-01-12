@@ -1,0 +1,101 @@
+Git tourious:
+
+1-安装完成后，执行下面的命令，主要是为了表明身份
+git config --global user.name "Your Name"
+git config --global user.email "email@example.com"
+2-创建repository
+  (1)mkdir learngit 创建目录用于存放代码
+  (2)git init  初始化命令，将这个path变为Git可以管理的仓库，此时目录下多了一个.git目录（隐藏）
+           Initialized empty Git repository in E:/Lightning-Plan-File/HowToUseGIT/workspace/learngit/.git/
+           .git目录是用来跟踪和管理版本库的
+  (3)在目录里面写代码等文件，保存（注意，所有版本控制只能去跟踪对比文本，而word很不幸是二进制）
+  (4)git add .  添加所有文件到Git仓库中
+     git add readme.txt 添加文件readme.txt到Git仓库中
+
+     git commit -m "xxx" 提交到仓库中，-m后面是本次提交的说明git commit -a不用写说明
+  (5)git status 查看当前仓库的状态，有文件被修改过
+  (6)git diff  查看不同，可以查看修改内容
+  (7)git log 查看最近到最远的提交日志，日志内容就是每次commit是-m后面的提交说明
+     git log --pretty=oneline  看到的一大串类似1094adb...的是commit id（版本号）
+     git log --graph    命令可以看到分支合并图
+
+  (8)git时光机
+     git reset --hard HEAD^ ##reset重置命令， --hard
+                               HEAD 表示当前版本，HEAD^表示上一版本，HEAD^^表示上上一版本
+                               HEAD~100表示往上100个版本
+
+     git reset --hard commit_id ##回溯到指定id的版本
+  (9)git reflog 用于记录每一次的命令，以便确定要回到未来的哪个版本
+         穿梭前，用git log可以查看提交历史，以便确定要回退到哪个版本。
+         要重返未来，用git reflog查看命令历史，以便确定要回到未来的哪个版本
+
+  (10)撤销修改  git checkout -- readme.txt  git checkout其实是用版本库里的版本替换工作区的版本，无论工作区是修改还是删除，都可以“一键还原
+      场景1：当你改乱了工作区某个文件的内容，想直接丢弃工作区的修改时，用命令git checkout -- file。
+          命令git checkout -- readme.txt意思就是，把readme.txt文件在工作区的修改全部撤销，这里有两种情况：
+          一种是readme.txt自修改后还没有被放到暂存区，现在，撤销修改就回到和版本库一模一样的状态；
+          一种是readme.txt已经添加到暂存区后，又作了修改，现在，撤销修改就回到添加到暂存区后的状态。
+          总之，就是让这个文件回到最近一次git commit或git add时的状态。
+      场景2：当你不但改乱了工作区某个文件的内容，还添加到了暂存区时，想丢弃修改，
+             分两步，第一步用命令git reset HEAD <file>，就回到了场景1，
+                     第二步按场景1操作
+  (11) git rm readme.txt 删除文件
+       git commmit -m "delelt"  删除文件后要提交一下
+
+3、git的概念：
+    A----工作区和暂存区
+   （1）工作区（Working Directory）就是在电脑里能看到的目录，比如我的learngit文件夹
+              就是一个工作区
+   （2）工作区有一个隐藏目录.git，这个不算工作区，而是Git的版本库。
+        .git/文件夹中有一个index(或者stage)，称之为暂存区
+                          HEAD 指向master的指针（用于版本控制）
+   （3）工作区和版本库是分开的，我们在工作区中编写代码，通过git add将相关文件添加到暂存区，
+            再使用git commit将add的代码提交到分支master中去，
+    B----git 跟踪并管理的是修改，而非文件
+
+    C --- 每次提交，Git都把它们串成一条时间线，这条时间线就是一个分支。截止到目前，只有一条时间线，
+             在Git里，这个分支叫主分支，即master分支。HEAD严格来说不是指向提交，而是指向master，
+             master才是指向提交的，所以，HEAD指向的就是当前分支。一开始的时候，master分支是一条线，
+             Git用master指向最新的提交，再用HEAD指向master，就能确定当前分支，以及当前分支的提交点：
+
+4、 git的远程仓库
+     (1)创建SSH-key, id_rsa(私钥), id_rsa.pub（公钥）
+         ssh-keygen -t rsa -C "3222708500@qq.com"
+    （2）在github上添加ssh-key的公钥，这样因为GitHub就能识别出推送的提交确实是你推送的，而不是别人冒充的，
+            Git支持SSH协议，所以，GitHub只要知道了你的公钥，就可以确认只有你自己才能推送。
+    （3）在github上新建一个名为learngit（和本地对应）的repository的仓库，
+     (4)关联远程仓库learngit,
+         SSH方式    git remote add origin git@server-name:path/repo-name.git ##git@github.com:jakezzq/hello-world.git
+         THHPS方式  git remote add origin https://github.com/jakezzq/learngit.git
+       关联后，第一次推送master分支的所有内容：
+          git push -u origin master  ##master代表的是主分支master
+       此后，每次本地提交后，只要有必要，就可以使用命令
+           git push origin master推送最新修改
+           git push -u origin master -f 强制本地
+     （5）从远程仓库克隆：git clone git@server-name:path/repo-name.git
+                         git clone https://github.com/jakezzq/learngit.git
+           ssh协议速度块，https协议速度慢
+
+     （6）取回远程主机某个分支的更新，再与本地的指定分支合并
+            git pull <远程主机名> <远程分支名>:<本地分支名>
+                git pull origin master:brantest  冒号可省略
+
+            git fetch origin master:brantest
+            git merge brantest
+            pull 和 fetch的区别在于 ： git pull = git fetch + git merge
+
+
+5、分支管理
+   （1）创建与合并分支
+          1  git branch dev    创建dev分支
+          2  git checkout dev  切换到dev分支
+          3  git checkout -b dev  创建并切换到dev分支
+          4  git branch   查看当前分支，并显示所有的分支，命令会列出所有分支，当前分支前面会标一个*号
+          5  git merge dev 命令用于合并指定分支到当前分支。合并后，再查看readme.txt的内容，就可以看到，和dev分支的最新提交是完全一样的
+                               返回的信息中有：Fast-forward，代表这次合并是“快进模式”，也就是直接把master指向dev的当前提交，所以合并速度非常快。
+          6  git branch -d dev  用于删除指定的分支. 因为创建、合并和删除分支非常快，所以Git鼓励你使用分支完成某个任务，合并后再删掉分支，这和直接在master分支上工作效果是一样的，但过程更安全
+
+   (2)
+
+
+6、忽略特殊文件：   忽略某些文件时，需要编写.gitignore；
+                   .gitignore文件本身要放到版本库里，并且可以对.gitignore做版本管理！
